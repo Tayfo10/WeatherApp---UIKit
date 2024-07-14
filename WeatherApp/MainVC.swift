@@ -10,17 +10,16 @@ import CoreLocation
 
 class MainVC: UIViewController {
     
-    let locationManager = CLLocationManager()
-    
-    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
-    
+    var weatherData: WeatherResponse?
+    var placemark: CLPlacemark?
+        
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
     let dateLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
     
     let dayLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
     
-    var temperatureLabel = WALabel(text: "", fontSize: 32, textAlignment: .center)
+    var temperatureLabel = WALabel(text: "", fontSize: 62, textAlignment: .center)
     
     var humidityLabel = WALabel(text: "", fontSize: 28, textAlignment: .center)
     
@@ -33,22 +32,12 @@ class MainVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        tapGestureCreate()
-        setupLocationManager()
+        if let weather = weatherData, let placemark = placemark {
+            updateUI(with: weather, placemark: placemark)
+        }
         configureGradient()
         configureUI()
     }
-    
-    func tapGestureCreate() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(cityLabelTapped))
-        cityLabel.isUserInteractionEnabled = true
-        cityLabel.addGestureRecognizer(tapGesture)
-    }
-    
-    @objc func cityLabelTapped() {
-            let newViewController = SearchVC() // Replace with your new view controller class
-            navigationController?.pushViewController(newViewController, animated: true)
-        }
     
     func configureUI() {
         
@@ -94,14 +83,7 @@ class MainVC: UIViewController {
         ])
     }
     
-    func setupLocationManager() {
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
-    }
-    
-    func updateUI(with weather: WeatherResponse) {
+    func updateUI(with weather: WeatherResponse, placemark: CLPlacemark) {
         DispatchQueue.main.async {
             self.dateLabel.text = WeatherUtils.getCurrentDate()
             self.dayLabel.text = WeatherUtils.getCurrentDay()
@@ -131,8 +113,8 @@ extension MainVC: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         
         if let location = locations.last {
-            let latitude = location.coordinate.latitude
-            let longitude = location.coordinate.longitude
+            _ = location.coordinate.latitude
+            _ = location.coordinate.longitude
             
             CLGeocoder().reverseGeocodeLocation(location) {placemarks, error in
                 if error != nil {
@@ -149,14 +131,7 @@ extension MainVC: CLLocationManagerDelegate {
                 }
             }
             
-            Task {
-                do {
-                    let weather = try await weatherService.fetchWeather(latitude: latitude, longitude: longitude)
-                    updateUI(with: weather)
-                } catch {
-                    print("Failed to fetch weather data: \(error.localizedDescription)")
-                }
-            }
+            
         }
     }
     

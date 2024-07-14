@@ -34,7 +34,7 @@ struct WeatherUtils {
         case "scattered clouds":
             return "scattered_clouds"
         case "broken clouds":
-            return "broken_clouds"
+            return "scattered_clouds"
         case "shower rain":
             return "shower_rain"
         case "rain":
