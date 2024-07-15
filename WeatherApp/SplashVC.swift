@@ -15,6 +15,7 @@ class SplashVC: UIViewController {
     
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
+    var cityName: String?
     
     let appLabel = WALabel(text: "WeatherApp", fontSize: 32, textAlignment: .center)
 
@@ -28,28 +29,31 @@ class SplashVC: UIViewController {
     
     private func fetchData() {
         
-        locationManager.requestWhenInUseAuthorization()
-        
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.startUpdatingLocation()
+            locationManager.requestWhenInUseAuthorization()
+            
+            if CLLocationManager.locationServicesEnabled() {
+                locationManager.delegate = self
+                locationManager.desiredAccuracy = kCLLocationAccuracyBest
+                locationManager.startUpdatingLocation()
+            } else { transitionToMainVC() }
         }
-    }
     
     private func transitionToMainVC() {
-        guard let weatherData = weatherData, let placemark = placemark else { return }
-        
-        let mainVC = MainVC()
-        mainVC.weatherData = weatherData
-        mainVC.placemark = placemark
-        
-        let navigationController = UINavigationController(rootViewController: mainVC)
-        navigationController.modalTransitionStyle = .crossDissolve
-        navigationController.modalPresentationStyle = .fullScreen
-        
-        self.present(navigationController, animated: true, completion: nil)
-    }
+            DispatchQueue.main.async {
+                guard let weatherData = self.weatherData, let placemark = self.placemark else { return }
+                
+                let mainVC = MainVC()
+                mainVC.weatherData = weatherData
+                mainVC.placemark = placemark
+                mainVC.cityName = self.cityName
+                
+                let navigationController = UINavigationController(rootViewController: mainVC)
+                navigationController.modalTransitionStyle = .crossDissolve
+                navigationController.modalPresentationStyle = .fullScreen
+                
+                self.present(navigationController, animated: true, completion: nil)
+            }
+        }
     
     func configureAppLabel() {
         view.addSubview(appLabel)
@@ -76,6 +80,9 @@ extension SplashVC: CLLocationManagerDelegate {
                 
                 if let placemark = placemarks?.first {
                     self.placemark = placemark
+                    let city = placemark.locality ?? "Unknown City"
+                    let country = placemark.administrativeArea ?? "Unknown Country"
+                    self.cityName = "\(city), \(country)"
                     
                     Task {
                         do {
@@ -94,5 +101,4 @@ extension SplashVC: CLLocationManagerDelegate {
         print("Failed to get user's location: \(error.localizedDescription)")
     }
 }
-
 

@@ -12,6 +12,7 @@ class MainVC: UIViewController {
     
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
+    var cityName: String?
         
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
@@ -85,6 +86,7 @@ class MainVC: UIViewController {
     
     func updateUI(with weather: WeatherResponse, placemark: CLPlacemark) {
         DispatchQueue.main.async {
+            self.cityLabel.text = self.cityName
             self.dateLabel.text = WeatherUtils.getCurrentDate()
             self.dayLabel.text = WeatherUtils.getCurrentDay()
             self.temperatureLabel.text = WeatherUtils.kelvinToCelsius(kelvin: weather.main.temp)
@@ -107,37 +109,3 @@ class MainVC: UIViewController {
     }
     
 }
-
-extension MainVC: CLLocationManagerDelegate {
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        
-        if let location = locations.last {
-            _ = location.coordinate.latitude
-            _ = location.coordinate.longitude
-            
-            CLGeocoder().reverseGeocodeLocation(location) {placemarks, error in
-                if error != nil {
-                    print("Reverse geocode has failed!")
-                    return
-                }
-                if let placemark = placemarks?.first{
-                    let city = placemark.administrativeArea ?? "Unknown City"
-                    let street = placemark.locality ?? "Unknown Locality"
-                    let cityLabelText = "\(city), \(street)"
-                    DispatchQueue.main.async {
-                        self.cityLabel.text = cityLabelText
-                    }
-                }
-            }
-            
-            
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Failed to get user's location: \(error.localizedDescription)")
-    }
-    
-}
-
