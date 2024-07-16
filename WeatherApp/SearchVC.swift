@@ -13,8 +13,6 @@ class SearchVC: UIViewController {
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
-
-
     
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
@@ -31,19 +29,16 @@ class SearchVC: UIViewController {
     let windLabel = WALabel(text: "", fontSize: 20, textAlignment: .center)
     
     let weatherImage = WAImageView(imageName: "weatherlogo")
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
+    
         configureUI()
-        configureGradient()
         
         if let weather = weatherData, let placemark = placemark {
-            
             updateUI(with: weather, placemark: placemark)
         }
-
+        
     }
     
     func configureUI() {
@@ -87,15 +82,7 @@ class SearchVC: UIViewController {
             windLabel.topAnchor.constraint(equalTo: weatherDescription.bottomAnchor),
             windLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            
         ])
-    }
-    
-    func configureGradient() {
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.frame = view.bounds
-        gradientLayer.colors = [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor]
-        view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     func updateUI(with weather: WeatherResponse, placemark: CLPlacemark) {
@@ -103,7 +90,7 @@ class SearchVC: UIViewController {
             self.cityLabel.text = self.cityName
             self.dateLabel.text = WeatherUtils.getCurrentDate()
             self.dayLabel.text = WeatherUtils.getCurrentDay()
-            self.temperatureLabel.text = "\(weather.main.temp)"
+            self.temperatureLabel.text = WeatherUtils.celciusToUI(celcius: weather.main.temp)
             self.humidityLabel.text = "Humidity:\(weather.main.humidity)%"
             self.weatherDescription.text =  weather.weather.first?.description.capitalized
             self.windLabel.text = "\(weather.wind.speed) m/s"
@@ -111,11 +98,21 @@ class SearchVC: UIViewController {
             if let weatherDescription = weather.weather.first?.description {
                 let iconName = WeatherUtils.getWeatherIconName(for: weatherDescription)
                 self.weatherImage.image = UIImage(named: iconName)
+                
+                if weatherDescription.contains("clear") || weatherDescription.contains("sun") {
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemYellow.cgColor, UIColor.systemOrange.cgColor],
+                                         to: [UIColor.systemOrange.cgColor, UIColor.systemYellow.cgColor])
+                } else if weatherDescription.contains("cloud") {
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.darkGray.cgColor, UIColor.gray.cgColor],
+                                         to: [UIColor.gray.cgColor, UIColor.darkGray.cgColor])
+                } else if weatherDescription.contains("rain") || weatherDescription.contains("storm") {
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemBlue.cgColor, UIColor.darkGray.cgColor],
+                                         to: [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor])
+                } else {
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemTeal.cgColor, UIColor.systemBlue.cgColor],
+                                         to: [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor])
+                }
             }
         }
     }
-    
-
-    
-
 }

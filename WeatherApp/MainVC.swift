@@ -10,14 +10,13 @@ import CoreLocation
 
 class MainVC: UIViewController{
     
-    
     var searchWeatherData: WeatherResponse?
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
     
     let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
-        
+    
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
     let dateLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
@@ -42,16 +41,26 @@ class MainVC: UIViewController{
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
         }
-        configureGradient()
         configureUI()
-        
-        searchBar.delegate = self
         configureSearchBar()
+        tapGestureAdd()
         
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        searchBar.text = ""
+        searchBar.layer.removeAllAnimations()
+        view.endEditing(true)
+        
+    }
+    
+    @objc func dismissKeyboard() {
+        view.endEditing(true)
+    }
+    
     func configureSearchBar (){
-       
+        searchBar.delegate = self
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.placeholder = "Enter city name"
         searchBar.backgroundImage = UIImage()
@@ -60,14 +69,13 @@ class MainVC: UIViewController{
         
         if let textField = searchBar.value(forKey: "searchField") as? UITextField {
             textField.backgroundColor = .white
-            
         }
-        
     }
     
-    
-    
-    
+    func tapGestureAdd() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
     
     func configureUI() {
         
@@ -132,19 +140,28 @@ class MainVC: UIViewController{
                 let iconName = WeatherUtils.getWeatherIconName(for: weatherDescription)
                 self.weatherImage.image = UIImage(named: iconName)
             }
+            
+            if let weatherDescription = weather.weather.first?.description{
+                
+                if weatherDescription.contains("clear") || weatherDescription.contains("sun") {
+                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.yellowOrange,
+                                                   to: GradientHelper.whiteYellow)
+                } else if weatherDescription.contains("cloud") {
+                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray,
+                                                   to: GradientHelper.whiteGray)
+                } else if weatherDescription.contains("rain") || weatherDescription.contains("storm") {
+                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray,
+                                                   to: GradientHelper.darkGrayBlue)
+                } else {
+                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueTeal,
+                                                   to: GradientHelper.tealBlue)
+                }
+            }
         }
-    }
-    
-    func configureGradient() {
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.frame = view.bounds
-        gradientLayer.colors = [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor]
-        view.layer.insertSublayer(gradientLayer, at: 0)
     }
     
     func navigateToSearchVC(with weatherResponse: WeatherResponse){
         let searchVC = SearchVC()
-        
         searchVC.cityName = self.cityName
         searchVC.weatherData = self.searchWeatherData
         searchVC.placemark = self.placemark
@@ -161,7 +178,6 @@ class MainVC: UIViewController{
             }
         }
     }
-    
 }
 
 extension MainVC:UISearchBarDelegate {
@@ -169,11 +185,6 @@ extension MainVC:UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let cityName = searchBar.text, !cityName.isEmpty else { return }
         self.cityName = cityName
-        print("API IS CALLED")
         performAPICall(for: cityName)
-        
-        
     }
-    
-    
 }

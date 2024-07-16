@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C735DE1D2C46950E002737EF /* GradientHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C735DE1C2C46950E002737EF /* GradientHelper.swift */; };
 		C776303A2C3FD53D00B12B66 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C77630392C3FD53D00B12B66 /* AppDelegate.swift */; };
 		C776303C2C3FD53D00B12B66 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C776303B2C3FD53D00B12B66 /* SceneDelegate.swift */; };
 		C776303E2C3FD53D00B12B66 /* MainVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C776303D2C3FD53D00B12B66 /* MainVC.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		C735DE1C2C46950E002737EF /* GradientHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientHelper.swift; sourceTree = "<group>"; };
 		C77630362C3FD53D00B12B66 /* WeatherApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C77630392C3FD53D00B12B66 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C776303B2C3FD53D00B12B66 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -78,6 +80,7 @@
 				C77630592C4129A900B12B66 /* WeatherUtils.swift */,
 				C77630422C3FD53E00B12B66 /* Assets.xcassets */,
 				C77630472C3FD53E00B12B66 /* Info.plist */,
+				C735DE1C2C46950E002737EF /* GradientHelper.swift */,
 			);
 			path = WeatherApp;
 			sourceTree = "<group>";
@@ -151,6 +154,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C735DE1D2C46950E002737EF /* GradientHelper.swift in Sources */,
 				C77630542C3FF3CD00B12B66 /* WAImageView.swift in Sources */,
 				C776305E2C426D3A00B12B66 /* SplashVC.swift in Sources */,
 				C77630502C3FE4D500B12B66 /* WALabel.swift in Sources */,

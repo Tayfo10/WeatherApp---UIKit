@@ -31,7 +31,6 @@ struct WeatherService {
         let (data, _) = try await URLSession.shared.data(from: url)
         
         let weatherResponse = try JSONDecoder().decode(WeatherResponse.self, from: data)
-        print(weatherResponse)
         return weatherResponse
     }
 

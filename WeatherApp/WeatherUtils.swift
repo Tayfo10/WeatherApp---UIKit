@@ -25,6 +25,10 @@ struct WeatherUtils {
         return String(format: "%.1f°C", celsius)
     }
     
+    static func celciusToUI(celcius: Double) -> String {
+        return String(format: "%.1f°C", celcius)
+    }
+    
     static func getWeatherIconName(for description: String) -> String {
         switch description.lowercased() {
         case "clear sky":
