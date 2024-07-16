@@ -8,11 +8,15 @@
 import UIKit
 import CoreLocation
 
-class MainVC: UIViewController {
+class MainVC: UIViewController{
     
+    
+    var searchWeatherData: WeatherResponse?
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
+    
+    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
         
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
@@ -30,6 +34,8 @@ class MainVC: UIViewController {
     
     let weatherImage = WAImageView(imageName: "weatherlogo")
     
+    let searchBar = UISearchBar()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -38,7 +44,30 @@ class MainVC: UIViewController {
         }
         configureGradient()
         configureUI()
+        
+        searchBar.delegate = self
+        configureSearchBar()
+        
     }
+    
+    func configureSearchBar (){
+       
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.placeholder = "Enter city name"
+        searchBar.backgroundImage = UIImage()
+        searchBar.backgroundColor = .clear
+        searchBar.searchTextField.textColor = .gray
+        
+        if let textField = searchBar.value(forKey: "searchField") as? UITextField {
+            textField.backgroundColor = .white
+            
+        }
+        
+    }
+    
+    
+    
+    
     
     func configureUI() {
         
@@ -52,10 +81,11 @@ class MainVC: UIViewController {
         view.addSubview(weatherDescription)
         view.addSubview(windLabel)
         view.addSubview(dayLabel)
+        view.addSubview(searchBar)
         
         NSLayoutConstraint.activate([
             
-            cityLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
+            cityLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 30),
             cityLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             dateLabel.topAnchor.constraint(equalTo: cityLabel.bottomAnchor, constant: 20),
@@ -80,6 +110,10 @@ class MainVC: UIViewController {
             
             windLabel.topAnchor.constraint(equalTo: weatherDescription.bottomAnchor),
             windLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
             
         ])
     }
@@ -107,5 +141,39 @@ class MainVC: UIViewController {
         gradientLayer.colors = [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor]
         view.layer.insertSublayer(gradientLayer, at: 0)
     }
+    
+    func navigateToSearchVC(with weatherResponse: WeatherResponse){
+        let searchVC = SearchVC()
+        
+        searchVC.cityName = self.cityName
+        searchVC.weatherData = self.searchWeatherData
+        searchVC.placemark = self.placemark
+        self.navigationController?.pushViewController(searchVC, animated: true)
+    }
+    
+    func performAPICall(for cityName: String) {
+        Task {
+            do {
+                self.searchWeatherData = try await weatherService.fetchWeatherCity(city: cityName)
+                navigateToSearchVC(with: searchWeatherData!)
+            } catch {
+                print("Failed to fetch weather data: \(error)")
+            }
+        }
+    }
+    
+}
+
+extension MainVC:UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        guard let cityName = searchBar.text, !cityName.isEmpty else { return }
+        self.cityName = cityName
+        print("API IS CALLED")
+        performAPICall(for: cityName)
+        
+        
+    }
+    
     
 }
