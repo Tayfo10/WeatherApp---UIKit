@@ -72,3 +72,5 @@ struct WeatherResponse: Codable {
         let sunset: Int
     }
 }
+
+

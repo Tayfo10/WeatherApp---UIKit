@@ -14,6 +14,8 @@ class SplashVC: UIViewController {
     let locationManager = CLLocationManager()
     
     var weatherData: WeatherResponse?
+    var weatherForecastData: WeatherForecastResponse?
+    
     var placemark: CLPlacemark?
     var cityName: String?
     
@@ -42,7 +44,10 @@ class SplashVC: UIViewController {
             DispatchQueue.main.async {
                 guard let weatherData = self.weatherData, let placemark = self.placemark else { return }
                 
+                guard let weatherForecastData = self.weatherForecastData else { return }
+                
                 let mainVC = MainVC()
+                mainVC.weatherForecastData = weatherForecastData
                 mainVC.weatherData = weatherData
                 mainVC.placemark = placemark
                 mainVC.cityName = self.cityName
@@ -55,12 +60,23 @@ class SplashVC: UIViewController {
             }
         }
     
+    private func transitionToForecastData () {
+        DispatchQueue.main.async {
+            guard let weatherForecastData = self.weatherForecastData else { return }
+            
+            let forecastVC = ForecastVC()
+            forecastVC.weatherForecastData = self.weatherForecastData
+        }
+    }
+    
     func configureAppLabel() {
         view.addSubview(appLabel)
         
         NSLayoutConstraint.activate([
             appLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            appLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            appLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            
+            
         ])
     }
 }
@@ -86,8 +102,18 @@ extension SplashVC: CLLocationManagerDelegate {
                     
                     Task {
                         do {
+                            
                             self.weatherData = try await self.weatherService.fetchWeather(latitude: latitude, longitude: longitude)
+                            
+                            self.weatherForecastData = try await self.weatherService.fetchWeatherForecast(latitude: latitude, longitude: longitude)
+                            
+                            
+                            
+                            
+                            
                             self.transitionToMainVC()
+                            
+                            
                         } catch {
                             print("Failed to fetch weather data: \(error.localizedDescription)")
                         }

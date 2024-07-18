@@ -10,10 +10,14 @@ import CoreLocation
 
 class MainVC: UIViewController{
     
+    var weatherForecastData: WeatherForecastResponse?
     var searchWeatherData: WeatherResponse?
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
+    
+    private let showForecastButton = WAButton()
+    
     
     let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     
@@ -41,8 +45,10 @@ class MainVC: UIViewController{
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
         }
+        
         configureUI()
         configureSearchBar()
+        configureForecastButton()
         tapGestureAdd()
         
     }
@@ -52,11 +58,21 @@ class MainVC: UIViewController{
         searchBar.text = ""
         searchBar.layer.removeAllAnimations()
         view.endEditing(true)
-        
     }
+    
+    @objc private func showForecastButtonTapped() {
+            let forecastVC = ForecastVC()
+            forecastVC.weatherForecastData = self.weatherForecastData
+            navigationController?.pushViewController(forecastVC, animated: true)
+        }
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
+    }
+    
+    func configureForecastButton () {
+        showForecastButton.configuration = .filled()
+        showForecastButton.addTarget(self, action: #selector(showForecastButtonTapped), for: .touchUpInside)
     }
     
     func configureSearchBar (){
@@ -81,6 +97,7 @@ class MainVC: UIViewController{
         
         navigationController?.navigationBar.tintColor = .white
         
+        view.addSubview(showForecastButton)
         view.addSubview(cityLabel)
         view.addSubview(dateLabel)
         view.addSubview(weatherImage)
@@ -107,7 +124,10 @@ class MainVC: UIViewController{
             weatherImage.heightAnchor.constraint(equalToConstant: 120),
             weatherImage.widthAnchor.constraint(equalToConstant: 120),
             
-            temperatureLabel.topAnchor.constraint(equalTo: weatherImage.bottomAnchor, constant: 40),
+            showForecastButton.topAnchor.constraint(equalTo: weatherImage.bottomAnchor),
+            showForecastButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            
+            temperatureLabel.topAnchor.constraint(equalTo: showForecastButton.bottomAnchor, constant: 40),
             temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             humidityLabel.topAnchor.constraint(equalTo: temperatureLabel.bottomAnchor),

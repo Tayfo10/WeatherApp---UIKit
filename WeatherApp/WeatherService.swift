@@ -8,6 +8,7 @@
 import Foundation
 
 struct WeatherService {
+    
     let apiKey: String
     
     func fetchWeather(latitude: Double, longitude: Double) async throws -> WeatherResponse {
@@ -21,6 +22,18 @@ struct WeatherService {
         let weatherResponse = try JSONDecoder().decode(WeatherResponse.self, from: data)
         return weatherResponse
     }
+    
+    func fetchWeatherForecast(latitude: Double, longitude: Double) async throws -> WeatherForecastResponse {
+            let urlString = "https://api.openweathermap.org/data/2.5/forecast?lat=\(latitude)&lon=\(longitude)&appid=\(apiKey)"
+            guard let url = URL(string: urlString) else {
+                throw URLError(.badURL)
+            }
+            
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            let weatherForecastResponse = try JSONDecoder().decode(WeatherForecastResponse.self, from: data)
+            return weatherForecastResponse
+        }
     
     func fetchWeatherCity(city: String) async throws -> WeatherResponse {
         let urlString = "https://api.openweathermap.org/data/2.5/weather?q=\(city)&units=metric&appid=899331ae7b7d2cbd88b2096d962b91e7"
