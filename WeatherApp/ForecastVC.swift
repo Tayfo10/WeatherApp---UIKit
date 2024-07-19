@@ -8,6 +8,9 @@
 import UIKit
 
 class ForecastVC: UIViewController {
+    
+    var fromMainVC: Bool = false
+
 
     var weatherForecastData: WeatherForecastResponse? {
         didSet {
@@ -23,7 +26,7 @@ class ForecastVC: UIViewController {
         layout.minimumLineSpacing = 10
         layout.minimumInteritemSpacing = 10
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .white
+        collectionView.backgroundColor = .clear
         collectionView.register(ForecastCell.self, forCellWithReuseIdentifier: "ForecastCell")
         return collectionView
     }()
@@ -34,6 +37,18 @@ class ForecastVC: UIViewController {
         setupCollectionView()
         navigationController?.navigationBar.tintColor = .black
     }
+    
+    private func updateBackground(for weatherDescription: String) {
+            if weatherDescription.contains("clear") || weatherDescription.contains("sun") {
+                GradientHelper.animateGradient(view: self.view, from: GradientHelper.yellowOrange, to: GradientHelper.whiteYellow)
+            } else if weatherDescription.contains("cloud") {
+                GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray, to: GradientHelper.whiteGray)
+            } else if weatherDescription.contains("rain") || weatherDescription.contains("storm") {
+                GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray, to: GradientHelper.darkGrayBlue)
+            } else {
+                GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueTeal, to: GradientHelper.tealBlue)
+            }
+        }
 
     private func setupCollectionView() {
         view.addSubview(collectionView)
@@ -41,11 +56,11 @@ class ForecastVC: UIViewController {
         collectionView.dataSource = self
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            collectionView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.8),
+            collectionView.heightAnchor.constraint(equalToConstant: 480),
             collectionView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
 
             collectionView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            collectionView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 2/3),
+            collectionView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 4/5),
             
         ])
     }
@@ -83,9 +98,14 @@ extension ForecastVC: UICollectionViewDelegate, UICollectionViewDataSource, UICo
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ForecastCell", for: indexPath) as! ForecastCell
-        let forecast = filteredForecasts[indexPath.row]
-        let minTemp = forecast.main.temp_min
-        let maxTemp = forecast.main.temp_max
+                let forecast = filteredForecasts[indexPath.row]
+                var minTemp = forecast.main.temp_min
+                var maxTemp = forecast.main.temp_max
+
+                if fromMainVC {
+                    minTemp = Double(minTemp - 273)
+                    maxTemp = Double(maxTemp - 273)
+                }
 
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
@@ -96,6 +116,8 @@ extension ForecastVC: UICollectionViewDelegate, UICollectionViewDataSource, UICo
             
             if let weatherDescription = forecast.weather.first?.description {
                 cell.configure(day: dayName, minTemp: minTemp, maxTemp: maxTemp, weatherDescription: weatherDescription)
+                updateBackground(for: weatherDescription)
+
             }
         }
 
@@ -103,6 +125,6 @@ extension ForecastVC: UICollectionViewDelegate, UICollectionViewDataSource, UICo
     }
 
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: collectionView.frame.width - 20, height: 60)
+        return CGSize(width: collectionView.frame.width, height: 75)
     }
 }

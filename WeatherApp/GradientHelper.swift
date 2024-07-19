@@ -42,8 +42,9 @@ class GradientHelper {
         animation.toValue = endColors
         animation.autoreverses = true
         animation.repeatCount = .infinity
-        animation.duration = 5
+        animation.duration = 12
         
         gradientLayer.add(animation, forKey: "colorChange")
     }
 }
+

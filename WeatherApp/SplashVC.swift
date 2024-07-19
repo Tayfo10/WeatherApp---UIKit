@@ -62,6 +62,7 @@ class SplashVC: UIViewController {
     
     private func transitionToForecastData () {
         DispatchQueue.main.async {
+            
             guard let weatherForecastData = self.weatherForecastData else { return }
             
             let forecastVC = ForecastVC()

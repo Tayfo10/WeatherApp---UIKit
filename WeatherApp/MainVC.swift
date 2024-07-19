@@ -15,9 +15,9 @@ class MainVC: UIViewController{
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
+    var citySearchName: String?
     
     private let showForecastButton = WAButton()
-    
     
     let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     
@@ -61,9 +61,13 @@ class MainVC: UIViewController{
     }
     
     @objc private func showForecastButtonTapped() {
+        
             let forecastVC = ForecastVC()
             forecastVC.weatherForecastData = self.weatherForecastData
+            forecastVC.fromMainVC = true
             navigationController?.pushViewController(forecastVC, animated: true)
+        
+
         }
     
     @objc func dismissKeyboard() {
@@ -182,6 +186,7 @@ class MainVC: UIViewController{
     
     func navigateToSearchVC(with weatherResponse: WeatherResponse){
         let searchVC = SearchVC()
+        searchVC.citySearchName = self.citySearchName
         searchVC.cityName = self.cityName
         searchVC.weatherData = self.searchWeatherData
         searchVC.placemark = self.placemark
@@ -206,5 +211,6 @@ extension MainVC:UISearchBarDelegate {
         guard let cityName = searchBar.text, !cityName.isEmpty else { return }
         self.cityName = cityName
         performAPICall(for: cityName)
+        self.citySearchName = cityName
     }
 }

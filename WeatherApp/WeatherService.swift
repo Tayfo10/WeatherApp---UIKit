@@ -46,6 +46,18 @@ struct WeatherService {
         let weatherResponse = try JSONDecoder().decode(WeatherResponse.self, from: data)
         return weatherResponse
     }
+    
+    func fetchForecastCity(city: String) async throws -> WeatherForecastResponse {
+            let urlString = "https://api.openweathermap.org/data/2.5/forecast?q=\(city)&units=metric&appid=\(apiKey)"
+            guard let url = URL(string: urlString) else {
+                throw URLError(.badURL)
+            }
+            
+            let (data, _) = try await URLSession.shared.data(from: url)
+            
+            let weatherForecastResponse = try JSONDecoder().decode(WeatherForecastResponse.self, from: data)
+            return weatherForecastResponse
+        }
 
     
     

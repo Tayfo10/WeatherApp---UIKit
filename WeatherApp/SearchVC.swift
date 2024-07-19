@@ -10,9 +10,21 @@ import CoreLocation
 
 class SearchVC: UIViewController {
     
+    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
+    
+    var weatherForecastData: WeatherForecastResponse?
+
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
+
+    var citySearchName: String? {
+            didSet {
+                fetchForecastData()
+            }
+        }
+    private let showForecastButton = WAButton()
+
     
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
@@ -34,6 +46,7 @@ class SearchVC: UIViewController {
         super.viewDidLoad()
     
         configureUI()
+        configureForecastButton()
         
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
@@ -41,10 +54,38 @@ class SearchVC: UIViewController {
         
     }
     
+    func fetchForecastData() {
+            guard let cityName = citySearchName else { return }
+            
+            Task {
+                do {
+                    let forecast = try await weatherService.fetchForecastCity(city: cityName)
+                    DispatchQueue.main.async {
+                        self.weatherForecastData = forecast
+                    }
+                } catch {
+                    print("Failed to fetch forecast data: \(error)")
+                }
+            }
+        }
+    
+    @objc private func showForecastButtonTapped() {
+        let forecastVC = ForecastVC()
+        forecastVC.weatherForecastData = self.weatherForecastData
+        forecastVC.fromMainVC = false
+        navigationController?.pushViewController(forecastVC, animated: true)
+    }
+    
+    func configureForecastButton () {
+        showForecastButton.configuration = .filled()
+        showForecastButton.addTarget(self, action: #selector(showForecastButtonTapped), for: .touchUpInside)
+    }
+    
     func configureUI() {
         
         navigationController?.navigationBar.tintColor = .white
         
+        view.addSubview(showForecastButton)
         view.addSubview(cityLabel)
         view.addSubview(dateLabel)
         view.addSubview(weatherImage)
@@ -70,7 +111,11 @@ class SearchVC: UIViewController {
             weatherImage.heightAnchor.constraint(equalToConstant: 120),
             weatherImage.widthAnchor.constraint(equalToConstant: 120),
             
-            temperatureLabel.topAnchor.constraint(equalTo: weatherImage.bottomAnchor, constant: 40),
+            showForecastButton.topAnchor.constraint(equalTo: weatherImage.bottomAnchor),
+            showForecastButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            showForecastButton.widthAnchor.constraint(equalToConstant: 160),
+            
+            temperatureLabel.topAnchor.constraint(equalTo: showForecastButton.bottomAnchor, constant: 40),
             temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             humidityLabel.topAnchor.constraint(equalTo: temperatureLabel.bottomAnchor),
