@@ -1,10 +1,3 @@
-//
-//  FavoritesVC.swift
-//  WeatherApp
-//
-//  Created by Tayfun Sener on 20.07.2024.
-//
-
 import UIKit
 
 class FavoritesVC: UIViewController {
@@ -19,6 +12,8 @@ class FavoritesVC: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
+    
+    private let customTransitionDelegate = CustomTransitionDelegate()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,18 +82,23 @@ extension FavoritesVC: UITableViewDataSource, UITableViewDelegate {
         cell.configure(cityName: favoriteCity.cityName, temperature: favoriteCity.temperature, weatherDescription: favoriteCity.weatherDescription, timestamp: favoriteCity.timestamp)
         return cell
     }
-    
-
-    
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-            tableView.deselectRow(at: indexPath, animated: true)
-            let favoriteCity = favoriteCities[indexPath.row]
-            
-        }
-    
+        let favoriteCity = favoriteCities[indexPath.row]
+        let detailVC = FavoriteCityDetailVC()
+        detailVC.favoriteCity = favoriteCity
+        
+        customTransitionDelegate.originFrame = tableView.rectForRow(at: indexPath)
+        customTransitionDelegate.originFrame = tableView.convert(customTransitionDelegate.originFrame, to: tableView.superview)
+        
+        let navigationController = UINavigationController(rootViewController: detailVC)
+        navigationController.transitioningDelegate = customTransitionDelegate
+        navigationController.modalPresentationStyle = .custom
+        
+        present(navigationController, animated: true, completion: nil)
+    }
 
-    
+
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let cityName = favoriteCities[indexPath.row].cityName

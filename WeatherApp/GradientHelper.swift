@@ -11,7 +11,7 @@ class GradientHelper {
     
     static let yellowOrange = [UIColor.systemYellow.cgColor, UIColor.systemOrange.cgColor]
     static let whiteYellow = [UIColor.red.cgColor, UIColor.systemYellow.cgColor]
-    static let darkgrayGray = [UIColor.darkGray.cgColor, UIColor.gray.cgColor]
+    static let darkgrayGray = [UIColor.darkGray.cgColor, UIColor.black.cgColor]
     static let whiteGray = [UIColor.white.cgColor, UIColor.darkGray.cgColor]
     static let blueDarkGray = [UIColor.systemBlue.cgColor, UIColor.darkGray.cgColor]
     static let darkGrayBlue = [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor]

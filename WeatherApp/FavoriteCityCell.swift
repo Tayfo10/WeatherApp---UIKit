@@ -38,7 +38,7 @@ class FavoriteCityCell: UITableViewCell {
         temperatureLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         weatherImageView.contentMode = .scaleAspectFit
         
-        let stackView = UIStackView(arrangedSubviews: [weatherImageView, cityNameLabel,timestampLabel, temperatureLabel])
+        let stackView = UIStackView(arrangedSubviews: [weatherImageView, cityNameLabel, timestampLabel, temperatureLabel])
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.spacing = 10
@@ -70,7 +70,15 @@ class FavoriteCityCell: UITableViewCell {
         let colors = GradientHelper.getWeatherGradient(for: weatherDescription)
         gradientLayer.colors = colors.startColors
         
-        GradientHelper.animateGradient(view: contentView, from: colors.startColors, to: colors.endColors)
+        // Adjust animation properties for stronger effect
+        let animation = CABasicAnimation(keyPath: "colors")
+        animation.fromValue = colors.startColors
+        animation.toValue = colors.endColors
+        animation.autoreverses = true
+        animation.repeatCount = .infinity
+        animation.duration = 6 // Reduce duration for quicker transitions
+        
+        gradientLayer.add(animation, forKey: "colorChange")
     }
 }
 
