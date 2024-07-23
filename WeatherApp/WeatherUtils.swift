@@ -14,6 +14,12 @@ struct WeatherUtils {
         return dateFormatter.string(from: Date())
     }
     
+    static func getCurrentDateTime() -> String {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "EEEE, HH:mm"
+            return formatter.string(from: Date())
+        }
+    
     static func getCurrentDay() -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "EEEE"
@@ -61,4 +67,6 @@ struct WeatherUtils {
             return "default_weather"
         }
     }
+    
+    
 }

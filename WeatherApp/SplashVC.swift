@@ -63,8 +63,6 @@ class SplashVC: UIViewController {
     private func transitionToForecastData () {
         DispatchQueue.main.async {
             
-            guard let weatherForecastData = self.weatherForecastData else { return }
-            
             let forecastVC = ForecastVC()
             forecastVC.weatherForecastData = self.weatherForecastData
         }
@@ -97,9 +95,9 @@ extension SplashVC: CLLocationManagerDelegate {
                 
                 if let placemark = placemarks?.first {
                     self.placemark = placemark
-                    let city = placemark.locality ?? "Unknown City"
+                    
                     let country = placemark.administrativeArea ?? "Unknown Country"
-                    self.cityName = "\(city), \(country)"
+                    self.cityName = "\(country)"
                     
                     Task {
                         do {

@@ -83,7 +83,7 @@ class ForecastVC: UIViewController {
             return false
         }
 
-        print("Filtered forecasts: \(filteredForecasts.count)")
+        
 
         DispatchQueue.main.async {
             self.collectionView.reloadData()

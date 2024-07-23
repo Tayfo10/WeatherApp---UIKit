@@ -10,23 +10,13 @@ import UIKit
 class GradientHelper {
     
     static let yellowOrange = [UIColor.systemYellow.cgColor, UIColor.systemOrange.cgColor]
-    
     static let whiteYellow = [UIColor.red.cgColor, UIColor.systemYellow.cgColor]
-    
     static let darkgrayGray = [UIColor.darkGray.cgColor, UIColor.gray.cgColor]
-    
     static let whiteGray = [UIColor.white.cgColor, UIColor.darkGray.cgColor]
-    
     static let blueDarkGray = [UIColor.systemBlue.cgColor, UIColor.darkGray.cgColor]
-    
     static let darkGrayBlue = [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor]
-    
     static let blueTeal = [UIColor.systemTeal.cgColor, UIColor.systemBlue.cgColor]
-    
     static let tealBlue = [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor]
-    
-    let yellow = UIColor.systemYellow.cgColor
-    let orange = UIColor.systemOrange.cgColor
     
     static func animateGradient(view: UIView, from startColors: [CGColor], to endColors: [CGColor]){
         let gradientLayer = CAGradientLayer()
@@ -46,5 +36,21 @@ class GradientHelper {
         
         gradientLayer.add(animation, forKey: "colorChange")
     }
+
+    static func getWeatherGradient(for weatherDescription: String) -> (startColors: [CGColor], endColors: [CGColor]) {
+        switch weatherDescription.lowercased() {
+        case "clear sky":
+            return (yellowOrange, whiteYellow)
+        case "few clouds":
+            return (whiteGray, darkgrayGray)
+        case "scattered clouds":
+            return (blueDarkGray, darkGrayBlue)
+        case "broken clouds":
+            return (blueTeal, tealBlue)
+        default:
+            return (yellowOrange, whiteYellow)
+        }
+    }
 }
+
 

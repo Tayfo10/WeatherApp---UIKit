@@ -8,8 +8,10 @@
 import UIKit
 import CoreLocation
 
+
+
 class SearchVC: UIViewController {
-    
+        
     let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     
     var weatherForecastData: WeatherForecastResponse?
@@ -19,10 +21,10 @@ class SearchVC: UIViewController {
     var cityName: String?
 
     var citySearchName: String? {
-            didSet {
-                fetchForecastData()
-            }
+        didSet {
+            fetchForecastData()
         }
+    }
     private let showForecastButton = WAButton()
 
     
@@ -47,6 +49,7 @@ class SearchVC: UIViewController {
     
         configureUI()
         configureForecastButton()
+        setupNavigationBar()
         
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
@@ -75,6 +78,60 @@ class SearchVC: UIViewController {
         forecastVC.fromMainVC = false
         navigationController?.pushViewController(forecastVC, animated: true)
     }
+    
+    private func setupNavigationBar() {
+        
+        
+            let addBarButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToFavorites))
+            
+            let favoritesButton = UIButton(type: .system)
+            favoritesButton.setTitle("Favorites", for: .normal)
+            favoritesButton.setTitleColor(.white, for: .normal)
+            favoritesButton.backgroundColor = UIColor.systemBlue
+            favoritesButton.layer.cornerRadius = 10
+            favoritesButton.clipsToBounds = true
+            favoritesButton.addTarget(self, action: #selector(showFavorites), for: .touchUpInside)
+            
+            let favoritesBarButton = UIBarButtonItem(customView: favoritesButton)
+            favoritesButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                favoritesButton.widthAnchor.constraint(equalToConstant: 100),
+                favoritesButton.heightAnchor.constraint(equalToConstant: 30)
+            ])
+            
+            navigationItem.rightBarButtonItems = [addBarButton, favoritesBarButton]
+        
+        
+        
+    }
+
+    @objc private func showFavorites() {
+        let favoritesVC = FavoritesVC()
+        navigationController?.pushViewController(favoritesVC, animated: true)
+    }
+
+    @objc private func addToFavorites() {
+        guard let cityName = self.cityName,
+              let weatherDescription = weatherDescription.text,
+              let temperature = temperatureLabel.text else { return }
+        
+        let timestamp = WeatherUtils.getCurrentDateTime()
+        let favoriteCity = FavoriteCity(cityName: cityName, temperature: temperature, weatherDescription: weatherDescription, timestamp: timestamp)
+        
+        if FavoriteCitiesManager.shared.getFavoriteCities().contains(where: { $0.cityName == cityName }) {
+            showAlert(title: "Already in Favorites", message: "\(cityName) is already in your favorites.")
+        } else {
+            FavoriteCitiesManager.shared.addFavorite(city: favoriteCity)
+            showAlert(title: "Added to Favorites", message: "\(cityName) has been added to your favorites.")
+        }
+    }
+
+
+        private func showAlert(title: String, message: String) {
+            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alertController, animated: true)
+        }
     
     func configureForecastButton () {
         showForecastButton.configuration = .filled()

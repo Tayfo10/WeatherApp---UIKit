@@ -50,6 +50,7 @@ class MainVC: UIViewController{
         configureSearchBar()
         configureForecastButton()
         tapGestureAdd()
+        setupNavigationBar()
         
     }
     
@@ -58,7 +59,14 @@ class MainVC: UIViewController{
         searchBar.text = ""
         searchBar.layer.removeAllAnimations()
         view.endEditing(true)
+        resetSearchData()
     }
+    
+    private func resetSearchData() {
+            citySearchName = nil
+            searchWeatherData = nil
+            
+        }
     
     @objc private func showForecastButtonTapped() {
         
@@ -69,6 +77,62 @@ class MainVC: UIViewController{
         
 
         }
+    
+    private func setupNavigationBar() {
+        
+        
+            let addBarButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToFavorites))
+            
+            let favoritesButton = UIButton(type: .system)
+            favoritesButton.setTitle("Favorites", for: .normal)
+            favoritesButton.setTitleColor(.white, for: .normal)
+            favoritesButton.backgroundColor = UIColor.systemBlue
+            favoritesButton.layer.cornerRadius = 10
+            favoritesButton.clipsToBounds = true
+            favoritesButton.addTarget(self, action: #selector(showFavorites), for: .touchUpInside)
+            
+            let favoritesBarButton = UIBarButtonItem(customView: favoritesButton)
+            favoritesButton.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                favoritesButton.widthAnchor.constraint(equalToConstant: 100),
+                favoritesButton.heightAnchor.constraint(equalToConstant: 30)
+            ])
+            
+            navigationItem.rightBarButtonItems = [addBarButton, favoritesBarButton]
+        
+        
+        
+    }
+
+    @objc private func showFavorites() {
+        let favoritesVC = FavoritesVC()
+        navigationController?.pushViewController(favoritesVC, animated: true)
+    }
+
+    @objc private func addToFavorites() {
+        guard let cityName = self.cityName,
+              let weatherDescription = weatherDescription.text,
+              let temperature = temperatureLabel.text else { return }
+        
+        let timestamp = WeatherUtils.getCurrentDateTime()
+        let favoriteCity = FavoriteCity(cityName: cityName, temperature: temperature, weatherDescription: weatherDescription, timestamp: timestamp)
+        
+        if FavoriteCitiesManager.shared.getFavoriteCities().contains(where: { $0.cityName == cityName }) {
+            showAlert(title: "Already in Favorites", message: "\(cityName) is already in your favorites.")
+        } else {
+            FavoriteCitiesManager.shared.addFavorite(city: favoriteCity)
+            showAlert(title: "Added to Favorites", message: "\(cityName) has been added to your favorites.")
+        }
+    }
+
+    
+    private func showAlert(title: String, message: String) {
+            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+            alertController.addAction(UIAlertAction(title: "OK", style: .default))
+            present(alertController, animated: true)
+        }
+    
+    
     
     @objc func dismissKeyboard() {
         view.endEditing(true)
