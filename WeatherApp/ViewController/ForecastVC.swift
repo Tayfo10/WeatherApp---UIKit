@@ -10,7 +10,7 @@ import UIKit
 class ForecastVC: UIViewController {
     
     var fromMainVC: Bool = false
-
+    var cityName: String = ""
 
     var weatherForecastData: WeatherForecastResponse? {
         didSet {
@@ -35,7 +35,11 @@ class ForecastVC: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupCollectionView()
-        navigationController?.navigationBar.tintColor = .black
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+        navigationItem.title = cityName
+        
+        
     }
     
     private func updateBackground(for weatherDescription: String) {

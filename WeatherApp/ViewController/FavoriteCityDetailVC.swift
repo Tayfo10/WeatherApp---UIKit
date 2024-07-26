@@ -14,10 +14,11 @@ class FavoriteCityDetailVC: UIViewController {
     let customTransitionDelegate = CustomTransitionDelegate()
 
     private let weatherImageView = UIImageView()
-    private let cityNameLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
-    private let temperatureLabel = WALabel(text: "", fontSize: 20, textAlignment: .center)
-    private let weatherDescriptionLabel = WALabel(text: "", fontSize: 18, textAlignment: .center)
-    private let timestampLabel = WALabel(text: "", fontSize: 16, textAlignment: .center)
+    private let cityNameLabel = WALabel(text: "", fontSize: 30, textAlignment: .center)
+    private let temperatureLabel = WALabel(text: "", fontSize: 48, textAlignment: .center)
+    
+    private let weatherDescriptionLabel = WALabel(text: "", fontSize: 22, textAlignment: .center)
+    private let timestampLabel = WALabel(text: "", fontSize: 18, textAlignment: .center)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +27,7 @@ class FavoriteCityDetailVC: UIViewController {
             updateUI(with: favoriteCity)
             animateBackground(for: favoriteCity.weatherDescription)
         }
+        setupNavigationBar()
     }
     
     private func configureUI() {
@@ -44,6 +46,18 @@ class FavoriteCityDetailVC: UIViewController {
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
         ])
     }
+    
+    private func setupNavigationBar() {
+        
+        let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
+        backButton.tintColor = .black
+        navigationItem.leftBarButtonItem = backButton
+        
+        }
+    
+    @objc private func backButtonTapped() {
+            navigationController?.dismiss(animated: true, completion: nil)
+        }
 
     private func updateUI(with favoriteCity: FavoriteCity) {
         cityNameLabel.text = favoriteCity.cityName

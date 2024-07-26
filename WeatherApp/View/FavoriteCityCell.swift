@@ -70,14 +70,14 @@ class FavoriteCityCell: UITableViewCell {
         let colors = GradientHelper.getWeatherGradient(for: weatherDescription)
         gradientLayer.colors = colors.startColors
         
-        // Adjust animation properties for stronger effect
         let animation = CABasicAnimation(keyPath: "colors")
         animation.fromValue = colors.startColors
         animation.toValue = colors.endColors
         animation.autoreverses = true
         animation.repeatCount = .infinity
-        animation.duration = 6 // Reduce duration for quicker transitions
-        
+        animation.duration = 6
+        animation.beginTime = CACurrentMediaTime() + Double.random(in: 0...6)
+
         gradientLayer.add(animation, forKey: "colorChange")
     }
 }

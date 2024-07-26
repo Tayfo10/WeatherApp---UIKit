@@ -1,25 +1,32 @@
 //
-//  ViewController.swift
+//  SearchVC.swift
 //  WeatherApp
 //
-//  Created by Tayfun Sener on 11.07.2024.
+//  Created by Tayfun Sener on 12.07.2024.
 //
 
 import UIKit
 import CoreLocation
 
-class MainVC: UIViewController{
+
+
+class SearchVC: UIViewController {
+        
+    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     
     var weatherForecastData: WeatherForecastResponse?
-    var searchWeatherData: WeatherResponse?
+
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
-    var citySearchName: String?
-    
+
+    var citySearchName: String? {
+        didSet {
+            fetchForecastData()
+        }
+    }
     private let showForecastButton = WAButton()
-    
-    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
+
     
     let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
     
@@ -37,46 +44,41 @@ class MainVC: UIViewController{
     
     let weatherImage = WAImageView(imageName: "weatherlogo")
     
-    let searchBar = UISearchBar()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+    
+        configureUI()
+        configureForecastButton()
+        setupNavigationBar()
         
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
         }
         
-        configureUI()
-        configureSearchBar()
-        configureForecastButton()
-        tapGestureAdd()
-        setupNavigationBar()
-        
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        searchBar.text = ""
-        searchBar.layer.removeAllAnimations()
-        view.endEditing(true)
-        resetSearchData()
-    }
-    
-    private func resetSearchData() {
-            citySearchName = nil
-            searchWeatherData = nil
+    func fetchForecastData() {
+            guard let cityName = citySearchName else { return }
             
+            Task {
+                do {
+                    let forecast = try await weatherService.fetchForecastCity(city: cityName)
+                    DispatchQueue.main.async {
+                        self.weatherForecastData = forecast
+                    }
+                } catch {
+                    print("Failed to fetch forecast data: \(error)")
+                }
+            }
         }
     
     @objc private func showForecastButtonTapped() {
-        
-            let forecastVC = ForecastVC()
-            forecastVC.weatherForecastData = self.weatherForecastData
-            forecastVC.fromMainVC = true
-            navigationController?.pushViewController(forecastVC, animated: true)
-        
-
-        }
+        let forecastVC = ForecastVC()
+        forecastVC.cityName = self.cityName!
+        forecastVC.weatherForecastData = self.weatherForecastData
+        forecastVC.fromMainVC = false
+        navigationController?.pushViewController(forecastVC, animated: true)
+    }
     
     private func setupNavigationBar() {
         
@@ -125,40 +127,16 @@ class MainVC: UIViewController{
         }
     }
 
-    
-    private func showAlert(title: String, message: String) {
+
+        private func showAlert(title: String, message: String) {
             let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
             alertController.addAction(UIAlertAction(title: "OK", style: .default))
             present(alertController, animated: true)
         }
     
-    
-    
-    @objc func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
     func configureForecastButton () {
         showForecastButton.configuration = .filled()
         showForecastButton.addTarget(self, action: #selector(showForecastButtonTapped), for: .touchUpInside)
-    }
-    
-    func configureSearchBar (){
-        searchBar.delegate = self
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        searchBar.placeholder = "Enter city name"
-        searchBar.backgroundImage = UIImage()
-        searchBar.backgroundColor = .clear
-        searchBar.searchTextField.textColor = .gray
-        
-        if let textField = searchBar.value(forKey: "searchField") as? UITextField {
-            textField.backgroundColor = .white
-        }
-    }
-    
-    func tapGestureAdd() {
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
     }
     
     func configureUI() {
@@ -174,11 +152,10 @@ class MainVC: UIViewController{
         view.addSubview(weatherDescription)
         view.addSubview(windLabel)
         view.addSubview(dayLabel)
-        view.addSubview(searchBar)
         
         NSLayoutConstraint.activate([
             
-            cityLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 30),
+            cityLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 30),
             cityLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             dateLabel.topAnchor.constraint(equalTo: cityLabel.bottomAnchor, constant: 20),
@@ -194,6 +171,7 @@ class MainVC: UIViewController{
             
             showForecastButton.topAnchor.constraint(equalTo: weatherImage.bottomAnchor),
             showForecastButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            showForecastButton.widthAnchor.constraint(equalToConstant: 160),
             
             temperatureLabel.topAnchor.constraint(equalTo: showForecastButton.bottomAnchor, constant: 40),
             temperatureLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -207,10 +185,6 @@ class MainVC: UIViewController{
             windLabel.topAnchor.constraint(equalTo: weatherDescription.bottomAnchor),
             windLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-            
         ])
     }
     
@@ -219,7 +193,7 @@ class MainVC: UIViewController{
             self.cityLabel.text = self.cityName
             self.dateLabel.text = WeatherUtils.getCurrentDate()
             self.dayLabel.text = WeatherUtils.getCurrentDay()
-            self.temperatureLabel.text = WeatherUtils.kelvinToCelsius(kelvin: weather.main.temp)
+            self.temperatureLabel.text = WeatherUtils.celciusToUI(celcius: weather.main.temp)
             self.humidityLabel.text = "Humidity:\(weather.main.humidity)%"
             self.weatherDescription.text =  weather.weather.first?.description.capitalized
             self.windLabel.text = "\(weather.wind.speed) m/s"
@@ -227,54 +201,21 @@ class MainVC: UIViewController{
             if let weatherDescription = weather.weather.first?.description {
                 let iconName = WeatherUtils.getWeatherIconName(for: weatherDescription)
                 self.weatherImage.image = UIImage(named: iconName)
-            }
-            
-            if let weatherDescription = weather.weather.first?.description{
                 
                 if weatherDescription.contains("clear") || weatherDescription.contains("sun") {
-                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.yellowOrange,
-                                                   to: GradientHelper.whiteYellow)
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemYellow.cgColor, UIColor.systemOrange.cgColor],
+                                         to: [UIColor.systemOrange.cgColor, UIColor.systemYellow.cgColor])
                 } else if weatherDescription.contains("cloud") {
-                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray,
-                                                   to: GradientHelper.whiteGray)
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.darkGray.cgColor, UIColor.gray.cgColor],
+                                         to: [UIColor.gray.cgColor, UIColor.darkGray.cgColor])
                 } else if weatherDescription.contains("rain") || weatherDescription.contains("storm") {
-                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueDarkGray,
-                                                   to: GradientHelper.darkGrayBlue)
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemBlue.cgColor, UIColor.darkGray.cgColor],
+                                         to: [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor])
                 } else {
-                    GradientHelper.animateGradient(view: self.view, from: GradientHelper.blueTeal,
-                                                   to: GradientHelper.tealBlue)
+                    GradientHelper.animateGradient(view: self.view, from: [UIColor.systemTeal.cgColor, UIColor.systemBlue.cgColor],
+                                         to: [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor])
                 }
             }
         }
-    }
-    
-    func navigateToSearchVC(with weatherResponse: WeatherResponse){
-        let searchVC = SearchVC()
-        searchVC.citySearchName = self.citySearchName
-        searchVC.cityName = self.cityName
-        searchVC.weatherData = self.searchWeatherData
-        searchVC.placemark = self.placemark
-        self.navigationController?.pushViewController(searchVC, animated: true)
-    }
-    
-    func performAPICall(for cityName: String) {
-        Task {
-            do {
-                self.searchWeatherData = try await weatherService.fetchWeatherCity(city: cityName)
-                navigateToSearchVC(with: searchWeatherData!)
-            } catch {
-                print("Failed to fetch weather data: \(error)")
-            }
-        }
-    }
-}
-
-extension MainVC:UISearchBarDelegate {
-    
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        guard let cityName = searchBar.text, !cityName.isEmpty else { return }
-        self.cityName = cityName
-        performAPICall(for: cityName)
-        self.citySearchName = cityName
     }
 }
