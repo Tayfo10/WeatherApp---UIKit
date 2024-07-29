@@ -26,7 +26,6 @@ class CustomExpandAnimator: NSObject, UIViewControllerAnimatedTransitioning {
         
         let initialFrame = isPresenting ? originFrame : transitionContext.finalFrame(for: fromVC)
         let finalFrame = isPresenting ? transitionContext.finalFrame(for: toVC) : originFrame
-        
         let animatingView = isPresenting ? toVC.view! : fromVC.view!
         
         if isPresenting {

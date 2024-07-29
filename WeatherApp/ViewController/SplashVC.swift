@@ -20,62 +20,52 @@ class SplashVC: UIViewController {
     var cityName: String?
     
     let appLabel = WALabel(text: "WeatherApp", fontSize: 32, textAlignment: .center)
-
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        view.backgroundColor = .darkGray
         configureAppLabel()
         fetchData()
     }
     
     private func fetchData() {
         
-            locationManager.requestWhenInUseAuthorization()
-            
-            if CLLocationManager.locationServicesEnabled() {
-                locationManager.delegate = self
-                locationManager.desiredAccuracy = kCLLocationAccuracyBest
-                locationManager.startUpdatingLocation()
-            } else { transitionToMainVC() }
-        }
+        locationManager.requestWhenInUseAuthorization()
+        
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.startUpdatingLocation()
+        } else { transitionToMainVC() }
+    }
     
     private func transitionToMainVC() {
-            DispatchQueue.main.async {
-                guard let weatherData = self.weatherData, let placemark = self.placemark else { return }
-                
-                guard let weatherForecastData = self.weatherForecastData else { return }
-                
-                let mainVC = MainVC()
-                mainVC.weatherForecastData = weatherForecastData
-                mainVC.weatherData = weatherData
-                mainVC.placemark = placemark
-                mainVC.cityName = self.cityName
-                
-                let navigationController = UINavigationController(rootViewController: mainVC)
-                navigationController.modalTransitionStyle = .crossDissolve
-                navigationController.modalPresentationStyle = .fullScreen
-                
-                self.present(navigationController, animated: true, completion: nil)
-            }
-        }
-    
-    private func transitionToForecastData () {
         DispatchQueue.main.async {
+            guard let weatherData = self.weatherData, let placemark = self.placemark else { return }
             
-            let forecastVC = ForecastVC()
-            forecastVC.weatherForecastData = self.weatherForecastData
+            guard let weatherForecastData = self.weatherForecastData else { return }
+            
+            let mainVC = MainVC()
+            mainVC.weatherForecastData = weatherForecastData
+            mainVC.weatherData = weatherData
+            mainVC.placemark = placemark
+            mainVC.cityName = self.cityName
+            
+            let navigationController = UINavigationController(rootViewController: mainVC)
+            navigationController.modalTransitionStyle = .crossDissolve
+            navigationController.modalPresentationStyle = .fullScreen
+            
+            self.present(navigationController, animated: true, completion: nil)
         }
     }
     
     func configureAppLabel() {
+        
+        view.backgroundColor = .darkGray
         view.addSubview(appLabel)
         
         NSLayoutConstraint.activate([
             appLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            appLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            
-            
+            appLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
 }
@@ -101,18 +91,9 @@ extension SplashVC: CLLocationManagerDelegate {
                     
                     Task {
                         do {
-                            
                             self.weatherData = try await self.weatherService.fetchWeather(latitude: latitude, longitude: longitude)
-                            
                             self.weatherForecastData = try await self.weatherService.fetchWeatherForecast(latitude: latitude, longitude: longitude)
-                            
-                            
-                            
-                            
-                            
                             self.transitionToMainVC()
-                            
-                            
                         } catch {
                             print("Failed to fetch weather data: \(error.localizedDescription)")
                         }

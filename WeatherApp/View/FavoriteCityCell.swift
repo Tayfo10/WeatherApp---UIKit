@@ -4,15 +4,14 @@ class FavoriteCityCell: UITableViewCell {
     
     static let reuseIdentifier = "FavoriteCityCell"
     
-    let cityNameLabel = UILabel()
-    let temperatureLabel = UILabel()
-    let weatherImageView = UIImageView()
-    let timestampLabel = UILabel()
-    let gradientLayer = CAGradientLayer()
+    let cityNameLabel       = UILabel()
+    let temperatureLabel    = UILabel()
+    let weatherImageView    = UIImageView()
+    let timestampLabel      = UILabel()
+    let gradientLayer       = CAGradientLayer()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         setupGradientLayer()
         setupUI()
     }

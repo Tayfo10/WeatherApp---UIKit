@@ -8,45 +8,32 @@
 import UIKit
 import CoreLocation
 
-
-
 class SearchVC: UIViewController {
-        
-    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     
+    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
     var weatherForecastData: WeatherForecastResponse?
-
     var weatherData: WeatherResponse?
     var placemark: CLPlacemark?
     var cityName: String?
-
+    
     var citySearchName: String? {
         didSet {
             fetchForecastData()
         }
     }
     private let showForecastButton = WAButton()
-
     
-    let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
-    
-    let dateLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
-    
-    let dayLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
-    
-    var temperatureLabel = WALabel(text: "", fontSize: 62, textAlignment: .center)
-    
-    var humidityLabel = WALabel(text: "", fontSize: 28, textAlignment: .center)
-    
-    let weatherDescription = WALabel(text: "", fontSize: 20, textAlignment: .center)
-    
-    let windLabel = WALabel(text: "", fontSize: 20, textAlignment: .center)
-    
-    let weatherImage = WAImageView(imageName: "weatherlogo")
+    let cityLabel           = WALabel(text: "", fontSize: 40, textAlignment: .center)
+    let dateLabel           = WALabel(text: "", fontSize: 24, textAlignment: .center)
+    let dayLabel            = WALabel(text: "", fontSize: 24, textAlignment: .center)
+    var temperatureLabel    = WALabel(text: "", fontSize: 62, textAlignment: .center)
+    var humidityLabel       = WALabel(text: "", fontSize: 28, textAlignment: .center)
+    let weatherDescription  = WALabel(text: "", fontSize: 20, textAlignment: .center)
+    let windLabel           = WALabel(text: "", fontSize: 20, textAlignment: .center)
+    let weatherImage        = WAImageView(imageName: "weatherlogo")
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
         configureUI()
         configureForecastButton()
         setupNavigationBar()
@@ -54,23 +41,22 @@ class SearchVC: UIViewController {
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
         }
-        
     }
     
     func fetchForecastData() {
-            guard let cityName = citySearchName else { return }
-            
-            Task {
-                do {
-                    let forecast = try await weatherService.fetchForecastCity(city: cityName)
-                    DispatchQueue.main.async {
-                        self.weatherForecastData = forecast
-                    }
-                } catch {
-                    print("Failed to fetch forecast data: \(error)")
+        guard let cityName = citySearchName else { return }
+        
+        Task {
+            do {
+                let forecast = try await weatherService.fetchForecastCity(city: cityName)
+                DispatchQueue.main.async {
+                    self.weatherForecastData = forecast
                 }
+            } catch {
+                print("Failed to fetch forecast data: \(error)")
             }
         }
+    }
     
     @objc private func showForecastButtonTapped() {
         let forecastVC = ForecastVC()
@@ -81,36 +67,14 @@ class SearchVC: UIViewController {
     }
     
     private func setupNavigationBar() {
-        
-        
-            let addBarButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToFavorites))
-            
-            let favoritesButton = UIButton(type: .system)
-            favoritesButton.setTitle("Favorites", for: .normal)
-            favoritesButton.setTitleColor(.white, for: .normal)
-            favoritesButton.backgroundColor = UIColor.systemBlue
-            favoritesButton.layer.cornerRadius = 10
-            favoritesButton.clipsToBounds = true
-            favoritesButton.addTarget(self, action: #selector(showFavorites), for: .touchUpInside)
-            
-            let favoritesBarButton = UIBarButtonItem(customView: favoritesButton)
-            favoritesButton.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                favoritesButton.widthAnchor.constraint(equalToConstant: 100),
-                favoritesButton.heightAnchor.constraint(equalToConstant: 30)
-            ])
-            
-            navigationItem.rightBarButtonItems = [addBarButton, favoritesBarButton]
-        
-        
-        
-    }
-
+        WeatherApp.setupNavigationBar(for: self, addToFavoritesSelector: #selector(addToFavorites), showFavoritesSelector: #selector(showFavorites))
+        }
+    
     @objc private func showFavorites() {
         let favoritesVC = FavoritesVC()
         navigationController?.pushViewController(favoritesVC, animated: true)
     }
-
+    
     @objc private func addToFavorites() {
         guard let cityName = self.cityName,
               let weatherDescription = weatherDescription.text,
@@ -126,13 +90,13 @@ class SearchVC: UIViewController {
             showAlert(title: "Added to Favorites", message: "\(cityName) has been added to your favorites.")
         }
     }
-
-
-        private func showAlert(title: String, message: String) {
-            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alertController, animated: true)
-        }
+    
+    
+    private func showAlert(title: String, message: String) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
+    }
     
     func configureForecastButton () {
         showForecastButton.configuration = .filled()
@@ -204,16 +168,16 @@ class SearchVC: UIViewController {
                 
                 if weatherDescription.contains("clear") || weatherDescription.contains("sun") {
                     GradientHelper.animateGradient(view: self.view, from: [UIColor.systemYellow.cgColor, UIColor.systemOrange.cgColor],
-                                         to: [UIColor.systemOrange.cgColor, UIColor.systemYellow.cgColor])
+                                                   to: [UIColor.systemOrange.cgColor, UIColor.systemYellow.cgColor])
                 } else if weatherDescription.contains("cloud") {
                     GradientHelper.animateGradient(view: self.view, from: [UIColor.darkGray.cgColor, UIColor.gray.cgColor],
-                                         to: [UIColor.gray.cgColor, UIColor.darkGray.cgColor])
+                                                   to: [UIColor.gray.cgColor, UIColor.darkGray.cgColor])
                 } else if weatherDescription.contains("rain") || weatherDescription.contains("storm") {
                     GradientHelper.animateGradient(view: self.view, from: [UIColor.systemBlue.cgColor, UIColor.darkGray.cgColor],
-                                         to: [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor])
+                                                   to: [UIColor.darkGray.cgColor, UIColor.systemBlue.cgColor])
                 } else {
                     GradientHelper.animateGradient(view: self.view, from: [UIColor.systemTeal.cgColor, UIColor.systemBlue.cgColor],
-                                         to: [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor])
+                                                   to: [UIColor.systemBlue.cgColor, UIColor.systemTeal.cgColor])
                 }
             }
         }

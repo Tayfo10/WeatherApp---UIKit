@@ -10,16 +10,15 @@ import UIKit
 class FavoriteCityDetailVC: UIViewController {
     
     var favoriteCity: FavoriteCity?
-    private let gradientLayer = CAGradientLayer()
-    let customTransitionDelegate = CustomTransitionDelegate()
-
-    private let weatherImageView = UIImageView()
-    private let cityNameLabel = WALabel(text: "", fontSize: 30, textAlignment: .center)
-    private let temperatureLabel = WALabel(text: "", fontSize: 48, textAlignment: .center)
+    private let gradientLayer            = CAGradientLayer()
+    let customTransitionDelegate         = CustomTransitionDelegate()
+    private let weatherImageView         = UIImageView()
+    private let cityNameLabel            = WALabel(text: "", fontSize: 30, textAlignment: .center)
+    private let temperatureLabel         = WALabel(text: "", fontSize: 48, textAlignment: .center)
     
-    private let weatherDescriptionLabel = WALabel(text: "", fontSize: 22, textAlignment: .center)
-    private let timestampLabel = WALabel(text: "", fontSize: 18, textAlignment: .center)
-
+    private let weatherDescriptionLabel  = WALabel(text: "", fontSize: 22, textAlignment: .center)
+    private let timestampLabel           = WALabel(text: "", fontSize: 18, textAlignment: .center)
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         configureUI()
@@ -38,7 +37,7 @@ class FavoriteCityDetailVC: UIViewController {
         stackView.spacing = 10
         stackView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stackView)
-
+        
         NSLayoutConstraint.activate([
             stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -48,17 +47,15 @@ class FavoriteCityDetailVC: UIViewController {
     }
     
     private func setupNavigationBar() {
-        
         let backButton = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(backButtonTapped))
         backButton.tintColor = .black
         navigationItem.leftBarButtonItem = backButton
-        
-        }
+    }
     
     @objc private func backButtonTapped() {
-            navigationController?.dismiss(animated: true, completion: nil)
-        }
-
+        navigationController?.dismiss(animated: true, completion: nil)
+    }
+    
     private func updateUI(with favoriteCity: FavoriteCity) {
         cityNameLabel.text = favoriteCity.cityName
         temperatureLabel.text = favoriteCity.temperature
@@ -69,7 +66,7 @@ class FavoriteCityDetailVC: UIViewController {
         weatherImageView.image = UIImage(named: iconName)
         weatherImageView.contentMode = .scaleAspectFit
     }
-
+    
     private func animateBackground(for weatherDescription: String) {
         let colors = GradientHelper.getWeatherGradient(for: weatherDescription)
         gradientLayer.colors = colors.startColors

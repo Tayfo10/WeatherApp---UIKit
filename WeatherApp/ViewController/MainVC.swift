@@ -19,23 +19,15 @@ class MainVC: UIViewController{
     
     private let showForecastButton = WAButton()
     
-    let weatherService = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
-    
-    let cityLabel = WALabel(text: "", fontSize: 40, textAlignment: .center)
-    
-    let dateLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
-    
-    let dayLabel = WALabel(text: "", fontSize: 24, textAlignment: .center)
-    
-    var temperatureLabel = WALabel(text: "", fontSize: 62, textAlignment: .center)
-    
-    var humidityLabel = WALabel(text: "", fontSize: 28, textAlignment: .center)
-    
-    let weatherDescription = WALabel(text: "", fontSize: 20, textAlignment: .center)
-    
-    let windLabel = WALabel(text: "", fontSize: 20, textAlignment: .center)
-    
-    let weatherImage = WAImageView(imageName: "weatherlogo")
+    let weatherService      = WeatherService(apiKey: "899331ae7b7d2cbd88b2096d962b91e7")
+    let cityLabel           = WALabel(text: "", fontSize: 40, textAlignment: .center)
+    let dateLabel           = WALabel(text: "", fontSize: 24, textAlignment: .center)
+    let dayLabel            = WALabel(text: "", fontSize: 24, textAlignment: .center)
+    var temperatureLabel    = WALabel(text: "", fontSize: 62, textAlignment: .center)
+    var humidityLabel       = WALabel(text: "", fontSize: 28, textAlignment: .center)
+    let weatherDescription  = WALabel(text: "", fontSize: 20, textAlignment: .center)
+    let windLabel           = WALabel(text: "", fontSize: 20, textAlignment: .center)
+    let weatherImage        = WAImageView(imageName: "weatherlogo")
     
     let searchBar = UISearchBar()
     
@@ -45,13 +37,11 @@ class MainVC: UIViewController{
         if let weather = weatherData, let placemark = placemark {
             updateUI(with: weather, placemark: placemark)
         }
-        
         configureUI()
         configureSearchBar()
         configureForecastButton()
         tapGestureAdd()
         setupNavigationBar()
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -63,53 +53,27 @@ class MainVC: UIViewController{
     }
     
     private func resetSearchData() {
-            citySearchName = nil
-            searchWeatherData = nil
-            
-        }
+        citySearchName = nil
+        searchWeatherData = nil
+    }
     
     @objc private func showForecastButtonTapped() {
-        
-            let forecastVC = ForecastVC()
-            forecastVC.cityName = self.cityName!
-            forecastVC.weatherForecastData = self.weatherForecastData
-            forecastVC.fromMainVC = true
-            navigationController?.pushViewController(forecastVC, animated: true)
-        
-
-        }
+        let forecastVC = ForecastVC()
+        forecastVC.cityName = self.cityName!
+        forecastVC.weatherForecastData = self.weatherForecastData
+        forecastVC.fromMainVC = true
+        navigationController?.pushViewController(forecastVC, animated: true)
+    }
     
     private func setupNavigationBar() {
-        
-        
-            let addBarButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(addToFavorites))
-            
-            let favoritesButton = UIButton(type: .system)
-            favoritesButton.setTitle("Favorites", for: .normal)
-            favoritesButton.setTitleColor(.white, for: .normal)
-            favoritesButton.backgroundColor = UIColor.systemBlue
-            favoritesButton.layer.cornerRadius = 10
-            favoritesButton.clipsToBounds = true
-            favoritesButton.addTarget(self, action: #selector(showFavorites), for: .touchUpInside)
-            
-            let favoritesBarButton = UIBarButtonItem(customView: favoritesButton)
-            favoritesButton.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                favoritesButton.widthAnchor.constraint(equalToConstant: 100),
-                favoritesButton.heightAnchor.constraint(equalToConstant: 30)
-            ])
-            
-            navigationItem.rightBarButtonItems = [addBarButton, favoritesBarButton]
-        
-        
-        
-    }
-
+        WeatherApp.setupNavigationBar(for: self, addToFavoritesSelector: #selector(addToFavorites), showFavoritesSelector: #selector(showFavorites))
+        }
+    
     @objc private func showFavorites() {
         let favoritesVC = FavoritesVC()
         navigationController?.pushViewController(favoritesVC, animated: true)
     }
-
+    
     @objc private func addToFavorites() {
         guard let cityName = self.cityName,
               let weatherDescription = weatherDescription.text,
@@ -125,15 +89,12 @@ class MainVC: UIViewController{
             showAlert(title: "Added to Favorites", message: "\(cityName) has been added to your favorites.")
         }
     }
-
     
     private func showAlert(title: String, message: String) {
-            let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .default))
-            present(alertController, animated: true)
-        }
-    
-    
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alertController, animated: true)
+    }
     
     @objc func dismissKeyboard() {
         view.endEditing(true)

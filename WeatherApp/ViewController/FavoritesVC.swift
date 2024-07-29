@@ -17,14 +17,14 @@ class FavoritesVC: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Favorites"
         setupTableView()
         setupNavigationBar()
         setupNoFavoritesLabel()
         loadFavoriteCities()
     }
-
+    
     private func setupTableView() {
+        title = "Favorites"
         view.addSubview(tableView)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
@@ -38,13 +38,13 @@ class FavoritesVC: UIViewController {
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
     }
-
+    
     private func setupNavigationBar() {
         navigationController?.navigationBar.tintColor = .black
         let clearButton = UIBarButtonItem(title: "Clear", style: .plain, target: self, action: #selector(clearFavorites))
         navigationItem.rightBarButtonItem = clearButton
     }
-
+    
     private func setupNoFavoritesLabel() {
         view.addSubview(noFavoritesLabel)
         NSLayoutConstraint.activate([
@@ -52,18 +52,18 @@ class FavoritesVC: UIViewController {
             noFavoritesLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-
+    
     @objc private func clearFavorites() {
         FavoriteCitiesManager.shared.clearFavorites()
         loadFavoriteCities()
     }
-
+    
     private func loadFavoriteCities() {
         favoriteCities = FavoriteCitiesManager.shared.getFavoriteCities()
         tableView.reloadData()
         updateNoFavoritesLabel()
     }
-
+    
     private func updateNoFavoritesLabel() {
         noFavoritesLabel.isHidden = !favoriteCities.isEmpty
     }
@@ -71,9 +71,7 @@ class FavoritesVC: UIViewController {
 
 extension FavoritesVC: UITableViewDataSource, UITableViewDelegate {
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return favoriteCities.count
-    }
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { return favoriteCities.count }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: FavoriteCityCell.reuseIdentifier, for: indexPath) as! FavoriteCityCell
@@ -82,7 +80,7 @@ extension FavoritesVC: UITableViewDataSource, UITableViewDelegate {
         cell.configure(cityName: favoriteCity.cityName, temperature: favoriteCity.temperature, weatherDescription: favoriteCity.weatherDescription, timestamp: favoriteCity.timestamp)
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let favoriteCity = favoriteCities[indexPath.row]
         let detailVC = FavoriteCityDetailVC()
@@ -94,11 +92,8 @@ extension FavoritesVC: UITableViewDataSource, UITableViewDelegate {
         let navigationController = UINavigationController(rootViewController: detailVC)
         navigationController.transitioningDelegate = customTransitionDelegate
         navigationController.modalPresentationStyle = .custom
-        
         present(navigationController, animated: true, completion: nil)
     }
-
-
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let cityName = favoriteCities[indexPath.row].cityName

@@ -58,7 +58,7 @@ struct Wind: Codable {
 
 struct Rain: Codable {
     let threeHour: Double?
-
+    
     enum CodingKeys: String, CodingKey {
         case threeHour = "3h"
     }

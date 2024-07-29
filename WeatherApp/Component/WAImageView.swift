@@ -23,7 +23,6 @@ class WAImageView: UIImageView {
     private func setupView() {
         self.layer.cornerRadius = 200
         self.clipsToBounds = true
-        
         self.layer.shadowColor = UIColor.systemBlue.cgColor
         self.layer.shadowOpacity = 0.5
         self.layer.shadowOffset = CGSize(width: 4, height: 2)
